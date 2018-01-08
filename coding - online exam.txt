@@ -1,0 +1,54 @@
+------------------------  Login ----------------------------------
+
+Dim rs As New ADODB.Recordset
+
+Private Sub clear_Click()
+txtuser = ""
+txtpass = ""
+End Sub
+
+Private Sub exit_Click()
+End
+End Sub
+
+Private Sub login_Click()
+rs.Open "select * from login where username='" & txtuser & "' and password='" & txtpass & "' and role", con, adOpenDynamic, adLockPessimistic
+orole = rs("role")
+If rs.EOF Then
+MsgBox "Login Failed !!"
+txtuser = ""
+txtpass = ""
+rs.Close
+Else
+MsgBox "Login Sucessfull !!"
+txtuser = ""
+txtpass = ""
+rs.Close
+End If
+If orole <> "admin" Then
+stu_menu.Show
+Me.Hide
+Else
+admin.Show
+Me.Hide
+End If
+End Sub
+
+---------------------------------------------------------------------------
+
+
+------------------------------ module - utility ---------------------------
+
+Public con As New ADODB.Connection
+Public orole As String
+
+
+Public Sub main()
+con.Open "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Documents and Settings\Administrator\My Documents\OnlineExam.accdb;Persist Security Info=False"
+login.Show
+End Sub
+
+---------------------------------------------------------------------------
+
+
+

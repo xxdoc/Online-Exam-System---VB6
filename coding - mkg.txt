@@ -1,0 +1,1448 @@
+========================== admin ========================
+
+Dim rs As New ADODB.Recordset
+
+Private Sub addtest_Click()
+Unload admin
+frm_addtest.Show
+End Sub
+
+Private Sub cmd_del_Click()
+rs.Open "delete from test", con, adOpenDynamic, adLockOptimistic
+rs.Close
+rs.Open "delete from results", con, adOpenDynamic, adLockOptimistic
+rs.Close
+rs.Open "delete from testcontrol", con, adOpenDynamic, adLockOptimistic
+rs.Close
+End Sub
+
+Private Sub ed_test_Click()
+Unload admin
+frm_aedittest.Show
+End Sub
+
+Private Sub logout_Click()
+Unload admin
+frm_Login.Show
+End Sub
+
+Private Sub mng_user_Click()
+Unload admin
+frm_manage.Show
+End Sub
+
+Private Sub profile_Click()
+Unload admin
+frm_aprf.Show
+End Sub
+
+Private Sub results_Click()
+frm_aresults.Show
+Unload admin
+End Sub
+
+Private Sub search_Click()
+Unload admin
+frm_asearch.Show
+End Sub
+
+
+===================== add test ======================
+
+Dim ttitle, tsub As String
+Dim tqno, qmarks As Integer
+Dim i, testid As Integer
+Dim rs As New ADODB.Recordset
+Dim ttsub, tfname, tsem, tsec, timec As String
+Dim astatus, tstatus As String
+
+Private Sub cmd_astatus_Click()
+' ------------------------------------ aststus is used to Enable answer control ------------------------------
+
+If castatus.Text <> "SELECT STATUS" Then
+f_tc.Visible = True
+astatus = castatus.Text
+Else
+MsgBox "Select Answer Status"
+End If
+End Sub
+
+Private Sub cmd_cancel_Click()
+admin.Show
+Me.Hide
+End Sub
+
+Private Sub cmd_submit_Click()
+' ------------------------------------ cmd_submit is used to submit the Test details  ------------------------------
+
+If txt_sub <> "" Then
+ttsub = txt_sub
+Else
+MsgBox "Enter Subject Name"
+Exit Sub
+End If
+
+If cmb_sem <> "SELECT SEM" Then
+tsem = cmb_sem.Text
+Else
+MsgBox "Select Semister"
+f_tq.Visible = False
+Exit Sub
+End If
+
+If cmb_sec <> "SELECT SECTION" Then
+tsec = cmb_sec.Text
+Else
+MsgBox "Select SECTION"
+f_tq.Visible = False
+Exit Sub
+End If
+
+
+tfname = pusername
+f_tq.Visible = True
+
+End Sub
+
+
+Private Sub cmd_timec_Click()
+' ------------------------------------ cmd_timec is used to set test duration control  ------------------------------
+
+If txttime <> "" Then
+f_submit.Visible = True
+f_tforms.Visible = True
+timec = txttime
+cmdmenu.Enabled = False
+cmdtsubmit.Enabled = False
+Else
+MsgBox "enter Test Duration"
+End If
+End Sub
+
+Private Sub cmd_tsatus_Click()
+' ------------------------------------ cmd_tstatus is used to Enable to test or not ------------------------------
+
+If ctstatus.Text <> "SELECT STATUS" Then
+f_astatus.Visible = True
+tstatus = ctstatus.Text
+Else
+MsgBox "Select Text Status"
+End If
+End Sub
+
+Private Sub cmd_ttitle_Click()
+' ------------------------------------ cmd_title is used to set test title ------------------------------
+If txt_ttitle <> "" Then
+ttitle = txt_ttitle
+f_tstatus.Visible = True
+Else
+MsgBox "Enter Test Title"
+End If
+End Sub
+
+Private Sub cmdtsubmit_Click()
+' ------------------------------------ cmdsubmit is used to submit the Test ------------------------------
+cmdmenu.Enabled = True
+cmdtsubmit.Enabled = False
+
+rs.Open "select * from testcontrol", con, adOpenDynamic, adLockOptimistic
+rs.AddNew
+rs("duration") = timec
+rs("subject") = ttsub
+rs("ttitle") = ttitle
+rs("testid") = testid
+rs("astatus") = astatus
+rs("tstatus") = tstatus
+rs("totalq") = tqno
+rs("sem") = tsem
+rs("sec") = tsec
+rs("faculty") = tfname
+rs("marks") = qmarks
+rs.Update
+rs.Close
+
+End Sub
+
+Private Sub Form_Load()
+
+' ------------------------------------ Adding text to combo box  ------------------------------
+
+ctstatus.AddItem "Locked"
+ctstatus.AddItem "UnLocked"
+
+castatus.AddItem "Locked"
+castatus.AddItem "UnLocked"
+
+cmb_answer.AddItem 1
+cmb_answer.AddItem 2
+cmb_answer.AddItem 3
+cmb_answer.AddItem 4
+
+cmb_sem.AddItem "I BCA"
+cmb_sem.AddItem "II BCA"
+cmb_sem.AddItem "III BCA"
+cmb_sem.AddItem "IV BCA"
+cmb_sem.AddItem "V BCA"
+cmb_sem.AddItem "VI BCA"
+
+cmb_sec.AddItem "A"
+cmb_sec.AddItem "B"
+
+lb_fname.Caption = fname
+f_tq.Visible = False
+f_tforms.Visible = False
+f_tstatus.Visible = False
+f_astatus.Visible = False
+f_tc.Visible = False
+f_ttitle.Visible = False
+f_submit.Visible = False
+
+i = 1
+
+' ------------------------------------ generating random number for testid  ------------------------------
+testid = Int((10000 * Rnd) + 1)
+End Sub
+
+Private Sub cmdmenu_Click()
+Me.Hide
+admin.Show
+End Sub
+
+Private Sub cmdqcfm_Click()
+' ------------------------------------ This Frame is used for question control   ------------------------------
+
+If txtnoq <> "" Then
+tqno = Val(txtnoq)
+lbqno.Caption = tqno & i
+Else
+MsgBox "Enter Total Questions"
+Exit Sub
+End If
+
+If txt_qmark <> "" Then
+qmarks = Val(txt_qmark)
+Else
+MsgBox "Enter Marks Per Question"
+Exit Sub
+End If
+f_ttitle.Visible = True
+End Sub
+
+Private Sub cmdqnext_Click()
+' ------------------------------------ cmdqnext is used to store the each to database  ------------------------------
+
+lbqno.Caption = tqno & i
+If tqno < i Then
+MsgBox "Entered All Questions"
+cmdtsubmit.Enabled = True
+Else
+rs.Open "select * from test", con, adOpenDynamic, adLockPessimistic
+rs.AddNew
+rs("questions") = txtques
+rs("opt1") = txtopt1
+rs("opt2") = txtopt2
+rs("opt3") = txtopt3
+rs("opt4") = txtopt4
+rs("optans") = cmb_answer.Text
+rs("testid") = testid
+rs.Update
+rs.MoveNext
+rs.Close
+txtques = ""
+txtopt1 = ""
+txtopt2 = ""
+txtopt3 = ""
+txtopt4 = ""
+txtans = ""
+i = i + 1
+End If
+End Sub
+
+Private Sub cmdqprev_Click()
+' ------------------------------------ cmdqprev is used to go previous for updating the data  ------------------------------
+
+rs.Open "select * from test", con, adOpenDynamic, adLockPessimistic
+
+rs.MovePrevious
+
+If rs.EOF Then
+rs.MoveFirst
+End If
+
+If rs.BOF Then
+rs.MoveNext
+End If
+
+txtques = rs("ques")
+txtopt1 = rs("opt1")
+txtopt2 = rs("opt2")
+txtopt3 = rs("opt3")
+txtopt4 = rs("opt4")
+txtans = rs("ans")
+
+rs.Close
+End Sub
+
+Private Sub cmdttle_Click()
+' ------------------------------------ set the test title  ------------------------------
+ttitle = txtttitle
+End Sub
+
+Private Function clear()
+' ------------------------------------ Function is used to clear the text box values  ------------------------------
+txtques = ""
+opt1 = ""
+opt2 = ""
+opt3 = ""
+opt4 = ""
+ans = ""
+End Function
+
+========================================= edit test =====================
+
+Dim ttitle, tsub As String
+Dim tqno, qmarks As Integer
+Dim i, testid As Integer
+Dim rs  As New ADODB.Recordset
+Dim rs1 As New ADODB.Recordset
+Dim ttsub, tfname, tsem, tsec, timec As String
+Dim astatus, tstatus As String
+
+Private Sub cmd_astatus_Click()
+' ------------------------------------ aststus is used to Enable answer control ------------------------------
+If castatus.Text <> "SELECT STATUS" Then
+f_tc.Visible = True
+astatus = castatus.Text
+Else
+MsgBox "Select Answer Status"
+End If
+
+rs1.Open "select * from testcontrol where testid='" & t_id & "'", con, adOpenDynamic, adLockOptimistic
+rs1("astatus") = castatus.Text
+rs1.Update
+MsgBox "Updated Successfully"
+rs1.Close
+End Sub
+
+Private Sub cmd_cancel_Click()
+admin.Show
+Me.Hide
+End Sub
+
+Private Sub cmd_submit_Click()
+' ------------------------------------ cmd_submit is used to submit the Test details  ------------------------------
+
+If txt_sub <> "" Then
+ttsub = txt_sub
+Else
+MsgBox "Enter Subject Name"
+Exit Sub
+End If
+
+If cmb_sem <> "SELECT SEM" Then
+tsem = cmb_sem.Text
+Else
+MsgBox "Select Semister"
+f_tq.Visible = False
+Exit Sub
+End If
+
+If cmb_sec <> "SELECT SECTION" Then
+tsec = cmb_sec.Text
+Else
+MsgBox "Select SECTION"
+f_tq.Visible = False
+Exit Sub
+End If
+
+tfname = pusername
+
+rs1.Open "select * from testcontrol where testid='" & t_id & "'", con, adOpenDynamic, adLockOptimistic
+rs1("subject") = txt_sub
+rs1("sem") = cmb_sem.Text
+rs1("sec") = cmb_sec.Text
+rs1.Update
+MsgBox "Updated Successfully"
+rs1.Close
+
+End Sub
+
+
+Private Sub cmd_timec_Click()
+' ------------------------------------ cmd_timec is used to set test duration control  ------------------------------
+
+If txttime <> "" Then
+f_submit.Visible = True
+f_tforms.Visible = True
+timec = txttime
+cmdmenu.Enabled = False
+cmdtsubmit.Enabled = False
+Else
+MsgBox "enter Test Duration"
+End If
+
+rs1.Open "select * from testcontrol where testid='" & t_id & "'", con, adOpenDynamic, adLockOptimistic
+rs1("duration") = txttime
+rs1.Update
+MsgBox "Updated Successfully"
+rs1.Close
+End Sub
+
+Private Sub cmd_tsatus_Click()
+' ------------------------------------ cmd_tstatus is used to Enable to test or not ------------------------------
+
+If ctstatus.Text <> "SELECT STATUS" Then
+f_astatus.Visible = True
+tstatus = ctstatus.Text
+Else
+MsgBox "Select Text Status"
+End If
+
+rs1.Open "select * from testcontrol where testid='" & t_id & "'", con, adOpenDynamic, adLockOptimistic
+rs1("tstatus") = ctstatus.Text
+rs1.Update
+MsgBox "Updated Successfully"
+rs1.Close
+
+End Sub
+
+Private Sub cmd_ttitle_Click()
+' ------------------------------------ cmd_title is used to set test title ------------------------------
+If txt_ttitle <> "" Then
+ttitle = txt_ttitle
+f_tstatus.Visible = True
+Else
+MsgBox "Enter Test Title"
+End If
+
+rs1.Open "select * from testcontrol where testid='" & t_id & "'", con, adOpenDynamic, adLockOptimistic
+rs1("ttitle") = txt_ttitle
+rs1.Update
+MsgBox "Updated Successfully"
+rs1.Close
+
+End Sub
+
+Private Sub cmdqupdate_Click()
+rs("questions") = txtques
+rs("opt1") = txtopt1
+rs("opt2") = txtopt2
+rs("opt3") = txtopt3
+rs("opt4") = txtopt4
+rs("optans") = cmb_answer.Text
+rs.Update
+MsgBox "Updated successfully"
+End Sub
+
+Private Sub cmdtsubmit_Click()
+' ------------------------------------ cmdsubmit is used to submit the Test ------------------------------
+rs.Close
+MsgBox "Submited Successfully"
+End Sub
+Private Sub Form_Load()
+rs.Open "select * from testcontrol where faculty='admin'", con, adOpenDynamic, adLockOptimistic
+t_dur = rs("duration")
+t_subject = rs("subject")
+t_name = rs("ttitle")
+t_id = rs("testid")
+t_astatus = rs("astatus")
+t_tstatus = rs("tstatus")
+t_totalq = rs("totalq")
+t_class = rs("sem")
+t_sec = rs("sec")
+tfname = rs("faculty")
+t_marks = rs("marks")
+rs.Close
+
+rs.Open "select * from test where testid='" & t_id & "'", con, adOpenDynamic, adLockPessimistic
+rs.MoveFirst
+txtques = rs("questions")
+txtopt1 = rs("opt1")
+txtopt2 = rs("opt2")
+txtopt3 = rs("opt3")
+txtopt4 = rs("opt4")
+cmb_answer.Text = rs("optans")
+
+
+' ------------------------------------ Adding text to combo box  ------------------------------
+
+ctstatus.AddItem "Locked"
+ctstatus.AddItem "UnLocked"
+
+castatus.AddItem "Locked"
+castatus.AddItem "UnLocked"
+
+cmb_answer.AddItem 1
+cmb_answer.AddItem 2
+cmb_answer.AddItem 3
+cmb_answer.AddItem 4
+
+cmb_sem.AddItem "I BCA"
+cmb_sem.AddItem "II BCA"
+cmb_sem.AddItem "III BCA"
+cmb_sem.AddItem "IV BCA"
+cmb_sem.AddItem "V BCA"
+cmb_sem.AddItem "VI BCA"
+
+cmb_sec.AddItem "A"
+cmb_sec.AddItem "B"
+
+lb_fname.Caption = fname
+f_tq.Visible = True
+f_tforms.Visible = True
+f_tstatus.Visible = True
+f_astatus.Visible = True
+f_tc.Visible = True
+f_ttitle.Visible = True
+f_submit.Visible = True
+
+i = 1
+
+castatus.Text = t_astatus
+ctstatus.Text = t_tstatus
+cmb_sem.Text = t_class
+cmb_sec.Text = t_sec
+
+txt_sub = t_subject
+txtnoq = t_totalq
+txt_qmark = t_marks
+txt_ttitle = t_name
+txttime = t_dur
+lb_ttid = t_id
+
+End Sub
+
+Private Sub cmdmenu_Click()
+Unload frm_aedittest
+admin.Show
+End Sub
+
+Private Sub cmdqcfm_Click()
+' ------------------------------------ This Frame is used for question control   ------------------------------
+
+If txtnoq <> "" Then
+tqno = Val(txtnoq)
+lbqno.Caption = tqno & i
+Else
+MsgBox "Enter Total Questions"
+Exit Sub
+End If
+
+If txt_qmark <> "" Then
+qmarks = Val(txt_qmark)
+Else
+MsgBox "Enter Marks Per Question"
+Exit Sub
+End If
+f_ttitle.Visible = True
+
+rs1.Open "select * from testcontrol where testid='" & t_id & "'", con, adOpenDynamic, adLockOptimistic
+rs1("totalq") = txtnoq
+rs1("marks") = txt_qmark
+rs1.Update
+MsgBox "Updated Successfully"
+rs1.Close
+
+End Sub
+
+Private Sub cmdqnext_Click()
+' ------------------------------------ cmdqnext is used to store the each to database  ------------------------------
+If Not rs.BOF And Not rs.EOF Then
+    rs.MovePrevious
+    If rs.BOF Then
+        rs.MoveLast
+    End If
+    txtques = rs("questions")
+txtopt1 = rs("opt1")
+txtopt2 = rs("opt2")
+txtopt3 = rs("opt3")
+txtopt4 = rs("opt4")
+cmb_answer.Text = rs("optans")
+End If
+End Sub
+
+Private Sub cmdqprev_Click()
+' ------------------------------------ cmdqprev is used to go previous for updating the data  ------------------------------
+If Not rs.BOF And Not rs.EOF Then
+    rs.MoveNext
+    If rs.EOF Then
+        rs.MoveFirst
+    End If
+    txtques = rs("questions")
+txtopt1 = rs("opt1")
+txtopt2 = rs("opt2")
+txtopt3 = rs("opt3")
+txtopt4 = rs("opt4")
+cmb_answer.Text = rs("optans")
+End If
+End Sub
+
+Private Sub cmdttle_Click()
+' ------------------------------------ set the test title  ------------------------------
+ttitle = txtttitle
+End Sub
+
+Private Function clear()
+' ------------------------------------ Function is used to clear the text box values  ------------------------------
+txtques = ""
+opt1 = ""
+opt2 = ""
+opt3 = ""
+opt4 = ""
+ans = ""
+End Function
+
+==================== admin profile ================================
+
+Dim rs As New ADODB.Recordset
+
+
+Private Sub cmd_menu_Click()
+Unload frm_aprf
+admin.Show
+End Sub
+
+Private Sub cmd_update_Click()
+rs.Open "select * from profile where pname='" & fname & "'", con, adOpenDynamic, adLockOptimistic
+rs("pemail") = txtsmail
+rs("password") = txtspwd
+rs("status") = "YES"
+rs.Update
+MsgBox "Profile Updated Successfully"
+txtsmail = ""
+txtspwd = ""
+rs.Close
+Unload frm_aprf
+admin.Show
+End Sub
+
+Private Sub Form_Load()
+lbsname = fname
+txtsmail = femail
+txtspwd = ppassword
+txtspwd.PasswordChar = "*"
+End Sub
+
+
+
+========================== admin results ==================
+
+Dim rs As New ADODB.Recordset
+Dim rs1 As New ADODB.Recordset
+
+Dim lb_title As String
+Dim dbstuname As String
+Private Sub cmd_smail_Click()
+MsgBox "MAIL SENT"
+End Sub
+
+Private Sub cmdmenu_Click()
+rs.Close
+admin.Show
+Unload frm_aresults
+End Sub
+Private Sub cmdnext_Click()
+If Not rs.BOF And Not rs.EOF Then
+    rs.MovePrevious
+    If rs.BOF Then
+        rs.MoveLast
+        results_dis
+        MsgBox "You Checked All Results"
+        cmdnext.Enabled = False
+    Else
+    results_dis
+    End If
+End If
+End Sub
+
+Private Sub cmdprev_Click()
+cmdnext.Enabled = True
+If Not rs.BOF And Not rs.EOF Then
+    rs.MoveNext
+    If rs.EOF Then
+        rs.MoveFirst
+    End If
+    results_dis
+End If
+
+End Sub
+
+Private Sub Form_Load()
+rs.Open "select * from results", con, adOpenDynamic, adLockPessimistic
+
+rs.MoveFirst
+
+results_dis
+End Sub
+
+Private Function results_dis()
+lbmstuname.Caption = rs("stuname")
+lbmmail = rs("stumail")
+lbmmarks = rs("marks")
+lbmfeedback = rs("feedback")
+lb_ttitle.Caption = rs("testtitle")
+End Function
+
+
+================================== admin search ==========================
+Dim rs As New ADODB.Recordset
+Dim search As String
+
+
+Private Sub cmd_clear_Click()
+lbmstuname.Caption = ""
+lb_reg = ""
+lbmmail = ""
+lbmmarks = ""
+lbmfeedback = ""
+lb_ttitle.Caption = ""
+lbmpoints = ""
+End Sub
+
+Private Sub cmd_search_Click()
+rs.Open "select * from results where stuname='" & txt_search & "'", con, adOpenDynamic, adLockOptimistic
+If rs.EOF Then
+MsgBox "No Student Found"
+rs.Close
+Else
+lbmstuname.Caption = rs("stuname")
+lb_reg = rs("regno")
+lbmmail = rs("stumail")
+lbmmarks = rs("marks")
+lbmfeedback = rs("feedback")
+lb_ttitle.Caption = rs("testtitle")
+rs.Close
+End If
+End Sub
+
+Private Sub cmd_smail_Click()
+If txt_search = "" Then
+MsgBox "Enter Student Details"
+Else
+mng_user = txt_search
+Unload frm_asearch
+frm_manage.Show
+End If
+End Sub
+
+Private Sub cmdmenu_Click()
+Unload frm_asearch
+admin.Show
+End Sub
+
+Private Sub Form_Load()
+lbmstuname.Caption = ""
+lb_reg = ""
+lbmmail = ""
+lbmmarks = ""
+lbmfeedback = ""
+lb_ttitle.Caption = ""
+lbmpoints = ""
+End Sub
+
+Private Sub txt_search_Change()
+search = txt_search.Text
+rs.Open "select * from results where stuname='" & txt_search & "' or regno='" & search & "'", con, adOpenDynamic, adLockOptimistic
+If rs.EOF Then
+rs.Close
+Exit Sub
+Else
+lbmstuname.Caption = rs("stuname")
+lb_reg = rs("regno")
+lbmmail = rs("stumail")
+lbmmarks = rs("marks")
+lbmfeedback = rs("feedback")
+lb_ttitle.Caption = rs("testtitle")
+lbmpoints = rs("points")
+rs.Close
+End If
+
+End Sub
+
+
+======================== login ==============================
+
+Dim rs As New ADODB.Recordset
+Dim pass As String
+
+Private Sub clear_Click()
+txtuser = ""
+txtpass = ""
+End Sub
+Private Sub cmd_pshow_GotFocus()
+cmd_pshow.Caption = "HIDE"
+txtpass.PasswordChar = ""
+End Sub
+
+Private Sub cmd_pshow_LostFocus()
+cmd_pshow.Caption = "SHOW"
+txtpass.PasswordChar = "*"
+End Sub
+
+Private Sub exit_Click()
+End
+End Sub
+
+Private Sub login_Click()
+' ------------------------------------ Login to the examination panel  ------------------------------
+
+rs.Open "select * from profile where username='" & txtuser & "' and password='" & txtpass & "' and role", con, adOpenDynamic, adLockPessimistic
+If rs.EOF Then
+MsgBox "Login Failed !!"
+txtuser = ""
+txtpass = ""
+rs.Close
+Exit Sub
+Else
+
+' ------------------------------------ Retriving the profile details  ------------------------------
+
+orole = rs("role")
+pusername = rs("username")
+ppassword = rs("password")
+stu_name = rs("pname")
+stu_class = rs("pclass")
+stu_email = rs("pemail")
+stu_sec = rs("psec")
+stu_reg = rs("preg")
+points = rs("points")
+pstatus = rs("status")
+fname = rs("pname")
+femail = rs("pemail")
+MsgBox "Login Sucessfull !!"
+txtuser = ""
+txtpass = ""
+rs.Close
+End If
+
+' ------------------------------------ If orole = admin then admin is logged in or student panel logged in  ------------------------------
+
+If pstatus = "NO" Then
+stu_profile.Show
+Unload frm_Login
+ElseIf orole = "student" Then
+stu_menu.Show
+Unload frm_Login
+Else
+admin.Show
+Unload frm_Login
+End If
+End Sub
+
+
+================================= manage ============================
+
+Dim rs As New ADODB.Recordset
+Dim reg As String
+
+
+Private Sub cmd_sadd_Click()
+
+rs.Open "select * from profile", con, adOpenDynamic, adLockOptimistic
+rs.AddNew
+rs("username") = txtsreg
+rs("password") = txtsname
+rs("role") = "student"
+rs("pname") = txtsname
+rs("preg") = txtsreg
+rs("pclass") = cmb_sem.Text
+rs("psec") = cmb_sec.Text
+rs("status") = "NO"
+rs("points") = 0
+rs("pemail") = "Enter Your Mail"
+rs.Update
+MsgBox "Student Added Succssfull"
+txtsname = ""
+txtsreg = ""
+rs.Close
+End Sub
+
+Private Sub cmd_sdel_Click()
+rs.Open "select * from profile where pname ='" & txtsname & "'", con, adOpenDynamic, adLockOptimistic
+rs.Delete
+rs.Update
+MsgBox "Deleted Successfully"
+rs.Close
+End Sub
+
+Private Sub cmd_search_Click()
+rs.Open "select * from profile where pname ='" & txtsname & "'", con, adOpenDynamic, adLockOptimistic
+
+If rs.EOF Then
+MsgBox "student Not Found"
+rs.Close
+Exit Sub
+End If
+
+txtsname = rs("pname")
+txtsreg = rs("preg")
+cmb_sem.Text = rs("pclass")
+cmb_sec.Text = rs("psec")
+rs.Close
+End Sub
+
+Private Sub cmd_smenu_Click()
+Unload frm_manage
+admin.Show
+End Sub
+
+Private Sub cmd_supd_Click()
+rs.Open "select * from profile where pname ='" & txtsname & "'", con, adOpenDynamic, adLockOptimistic
+
+If rs.EOF Then
+MsgBox "student Not Found"
+rs.Close
+Exit Sub
+End If
+
+If rs.BOF Then
+MsgBox "student Not Found"
+rs.Close
+Exit Sub
+End If
+
+rs("pname") = txtsname
+rs("preg") = txtsreg
+rs("pclass") = cmb_sem.Text
+rs("psec") = cmb_sec.Text
+rs.Update
+MsgBox "Student Updated Succssfull"
+txtsname = ""
+txtsreg = ""
+rs.Close
+End Sub
+
+Private Sub Form_Load()
+cmb_sem.AddItem "I BCA"
+cmb_sem.AddItem "II BCA"
+cmb_sem.AddItem "III BCA"
+cmb_sem.AddItem "IV BCA"
+cmb_sem.AddItem "V BCA"
+cmb_sem.AddItem "VI BCA"
+
+cmb_sec.AddItem "A"
+cmb_sec.AddItem "B"
+
+cmb_sem.Text = "select Semister"
+cmb_sec.Text = "Select Section"
+
+If mng_user = "" Then
+Exit Sub
+Else
+rs.Open "select * from profile where pname ='" & mng_user & "' or preg ='" & mng_user & "'", con, adOpenDynamic, adLockOptimistic
+If rs.EOF Then
+MsgBox "Student Not Found"
+Else
+txtsname = rs("pname")
+txtsreg = rs("preg")
+cmb_sem.Text = rs("pclass")
+cmb_sec.Text = rs("psec")
+rs.Close
+End If
+End If
+End Sub
+
+Private Sub txtsname_LostFocus()
+rs.Open "select * from profile where pname ='" & txtsname & "'", con, adOpenDynamic, adLockOptimistic
+If rs.EOF Then
+rs.Close
+Exit Sub
+End If
+
+If rs.BOF Then
+rs.Close
+Exit Sub
+End If
+
+txtsname = rs("pname")
+txtsreg = rs("preg")
+cmb_sem.Text = rs("pclass")
+cmb_sec.Text = rs("psec")
+rs.Close
+End Sub
+
+
+
+Private Sub txtsreg_LostFocus()
+rs.Open "select * from profile where preg ='" & txtsreg & "'", con, adOpenDynamic, adLockOptimistic
+If rs.EOF Then
+rs.Close
+Exit Sub
+End If
+
+If rs.BOF Then
+rs.Close
+Exit Sub
+End If
+
+txtsname = rs("pname")
+txtsreg = rs("preg")
+cmb_sem.Text = rs("pclass")
+cmb_sec.Text = rs("psec")
+rs.Close
+
+End Sub
+
+============================= stu ans ==================================
+
+Dim rs As New ADODB.Recordset
+
+Private Sub cmdanext_Click()
+If Not rs.BOF And Not rs.EOF Then
+    rs.MoveNext
+    If rs.EOF Then
+        rs.MoveFirst
+    End If
+    lbaq = rs("questions")
+    lbaopt1 = rs("opt1")
+    lbaopt2 = rs("opt2")
+    lbaopt3 = rs("opt3")
+    lbaopt4 = rs("opt4")
+    lbans = "Answer is " & rs("optans")
+End If
+End Sub
+
+Private Sub cmdaprev_Click()
+If Not rs.BOF And Not rs.EOF Then
+    rs.MovePrevious
+    If rs.BOF Then
+        rs.MoveLast
+    End If
+    lbaq = rs("questions")
+    lbaopt1 = rs("opt1")
+    lbaopt2 = rs("opt2")
+    lbaopt3 = rs("opt3")
+    lbaopt4 = rs("opt4")
+    lbans = "Answer is " & rs("optans")
+End If
+
+End Sub
+
+Private Sub cmdmenu_Click()
+Unload stu_ans
+stu_menu.Show
+End Sub
+
+Private Sub Form_Load()
+rs.Open "select * from test", con, adOpenDynamic, adLockPessimistic
+
+rs.MoveFirst
+
+lbaq = rs("questions")
+    lbaopt1 = rs("opt1")
+    lbaopt2 = rs("opt2")
+    lbaopt3 = rs("opt3")
+    lbaopt4 = rs("opt4")
+    lbans = "Answer is " & rs("optans")
+End Sub
+
+
+=============================== stu menu =================================
+
+Dim rs As New ADODB.Recordset
+Dim t_taken As String
+
+
+Private Sub cmdans_Click()
+
+If t_astatus = "Locked" Then
+MsgBox "Answer Not Announced"
+Else
+Unload stu_menu
+stu_ans.Show
+End If
+End Sub
+
+Private Sub cmdexit_Click()
+End
+End Sub
+
+Private Sub cmdlogout_Click()
+Unload stu_menu
+frm_Login.Show
+End Sub
+
+Private Sub cmdprofile_Click()
+Unload stu_menu
+stu_prf.Show
+End Sub
+
+Private Sub cmdresult_Click()
+Unload stu_menu
+stu_results.Show
+End Sub
+
+Private Sub cmdtake_Click()
+
+rs.Open "select * from results where stuname='" & stu_name & "'", con, adOpenDynamic, adLockOptimistic
+If rs.EOF Then
+t_taken = "NO"
+rs.Close
+Else
+t_taken = rs("tstatus")
+rs.Close
+End If
+
+If t_tstatus = "Locked" Then
+MsgBox "NO TEST ANNOUNCED"
+ElseIf t_taken = "TAKEN" Then
+MsgBox "ALREADY TAKEN TEST...!!!"
+Else
+Me.Hide
+stu_test.Show
+End If
+End Sub
+
+Private Sub cmdtop_Click()
+Unload stu_menu
+stu_topranks.Show
+End Sub
+
+Private Sub Form_Load()
+rs.Open "select * from testcontrol where sec='" & stu_sec & "' and sem='" & stu_class & "'", con, adOpenDynamic, adLockOptimistic
+If rs.EOF Then
+t_tstatus = "Locked"
+rs.Close
+Else
+t_name = rs("ttitle")
+t_class = rs("sem")
+t_sec = rs("sec")
+t_dur = rs("duration")
+t_id = rs("testid")
+t_marks = rs("marks")
+t_totalq = rs("totalq")
+t_tstatus = rs("tstatus")
+t_astatus = rs("astatus")
+t_subject = rs("subject")
+rs.Close
+End If
+
+End Sub
+
+
+================================ stu profile ======================
+
+Dim rs As New ADODB.Recordset
+
+
+Private Sub cmd_menu_Click()
+Unload stu_prf
+stu_menu.Show
+End Sub
+
+Private Sub cmd_update_Click()
+rs.Open "select * from profile where pname='" & stu_name & "'", con, adOpenDynamic, adLockOptimistic
+rs("pemail") = txtsmail
+rs("password") = txtspwd
+rs("status") = "YES"
+rs.Update
+MsgBox "Profile Updated Successfully"
+txtsmail = ""
+txtspwd = ""
+rs.Close
+Unload stu_prf
+stu_menu.Show
+End Sub
+
+Private Sub Form_Load()
+lbsname = stu_name
+lbsreg = stu_reg
+txtsmail = stu_email
+lbssem = stu_class
+lbssec = stu_sec
+
+rs.Open "select * from profile where pname='" & stu_name & "'", con, adOpenDynamic, adLockOptimistic
+lb_points = rs("points") & "  XP"
+rs.Close
+
+txtspwd = ppassword
+txtspwd.PasswordChar = "*"
+End Sub
+
+
+================================ stu profileee =====================
+
+Dim rs As New ADODB.Recordset
+
+Private Sub cmdnext_Click()
+rs.Open "select * from profile where pname='" & stu_name & "'", con, adOpenDynamic, adLockOptimistic
+rs("pemail") = txtsmail
+rs("password") = txtspwd
+rs("status") = "YES"
+rs.Update
+MsgBox "Profile Updated Successfully"
+txtsmail = ""
+txtspwd = ""
+rs.Close
+Me.Hide
+stu_menu.Show
+End Sub
+
+Private Sub Form_Load()
+lbsname = stu_name
+lbsreg = stu_reg
+txtsmail = stu_email
+lbssem = stu_class
+lbssec = stu_sec
+End Sub
+
+
+=========================== stu results ============================
+
+Dim rs As New ADODB.Recordset
+
+Private Sub cmdmenu_Click()
+Unload stu_results
+stu_menu.Show
+End Sub
+
+Private Sub Form_Load()
+rs.Open "select * from results where stuname='" & stu_name & "'", con, adOpenDynamic, adLockPessimistic
+lbmstuname.Caption = rs("stuname")
+lbmmail = rs("stumail")
+lbmmarks = rs("marks")
+lbmfeedback = rs("feedback")
+lb_ttitle.Caption = rs("testtitle")
+lbmpoints = rs("points")
+rs.Close
+End Sub
+
+
+===================== stu test ========================
+
+Dim rs As New ADODB.Recordset
+Dim rs1 As New ADODB.Recordset
+Dim tstatus As String
+Dim ttitle, rtitle As String
+Dim astatus As String
+Dim sans, dbans As String
+Dim marks As Integer
+Dim optpos, otans As Integer
+Dim min, sec As Integer
+
+Private Sub cmdcalc_Click()
+' ------------------------------------ To check for blank answer  ------------------------------
+
+If topt1.Value = False And topt2.Value = False And topt3.Value = False And topt4.Value = False Then
+MsgBox "Select answer"
+Else
+cmdtnext.Enabled = True
+calc
+cmdcalc.Enabled = False
+End If
+End Sub
+
+Private Sub cmdmenu_Click()
+stu_menu.Show
+Me.Hide
+End Sub
+
+Private Sub cmdtnext_Click()
+' ------------------------------------ cmdnext is used to display next question  ------------------------------
+
+cmdcalc.Enabled = True
+
+topt1.Value = False
+topt2.Value = False
+topt3.Value = False
+topt4.Value = False
+
+' ------------------------------------ if rs.eof then alert user that answered all qusetion ------------------------------
+
+If Not rs.BOF And Not rs.EOF Then
+    rs.MoveNext
+    If rs.EOF Then
+        MsgBox "ALL Question are answered...!!!"
+        MsgBox "Total marks is " & marks
+        rs.Close
+        cmdtnext.Enabled = False
+        cmdcalc.Enabled = False
+        submit.Enabled = True
+        Exit Sub
+    End If
+    lbsques.Caption = rs("questions")
+    topt1.Caption = rs("opt1")
+    topt2.Caption = rs("opt2")
+    topt3.Caption = rs("opt3")
+    topt4.Caption = rs("opt4")
+    otans = rs("optans")
+    ans = dbans
+End If
+
+cmdtnext.Enabled = False
+
+End Sub
+
+Private Sub Form_Load()
+' ------------------------------------ Retriving the Question from databse ------------------------------
+
+rs.Open "select * from test where testid='" & t_id & "'", con, adOpenDynamic, adLockPessimistic
+
+rs.MoveFirst
+
+lbsques.Caption = rs("questions")
+    topt1.Caption = rs("opt1")
+    topt2.Caption = rs("opt2")
+    topt3.Caption = rs("opt3")
+    topt4.Caption = rs("opt4")
+    otans = rs("optans")
+    ans = dbans
+    
+    cmdtnext.Enabled = False
+    
+    cmdmenu.Enabled = False
+    
+    submit.Enabled = False
+    
+' ------------------------------------ enabling the timer control and setting sec to 60   ------------------------------
+
+    Timer1.Enabled = True
+    Timer1.Interval = 1000
+    
+    sec = 60
+min = t_dur
+
+f_subname.Caption = t_subject
+    lbsname.Caption = t_name
+    
+    marks = t_marks
+    upoints = points
+End Sub
+
+Private Function calc()
+' ------------------------------------ function to calculate the marks if answer option clicked  ------------------------------
+
+If optpos = otans And optpos = otans Then
+marks = marks + t_marks
+End If
+End Function
+
+Private Sub submit_Click()
+' ------------------------------------ submit the test results to results table  ------------------------------
+
+Dim rs2 As New ADODB.Recordset
+
+rs1.Open "select * from results", con, adOpenDynamic, adLockPessimistic
+If txtfeed <> "" Then
+rs1.AddNew
+rs1("stuname") = stu_name
+rs1("marks") = marks
+rs1("tstatus") = "TAKEN"
+rs1("feedback") = txtfeed
+rs1("testtitle") = t_name
+rs1("stumail") = stu_email
+rs1("regno") = stu_reg
+rs1("points") = upoints + marks
+rs1.Update
+rs1.Close
+
+rs2.Open "select * from profile where pname='" & stu_name & "'", con, adOpenDynamic, adLockOptimistic
+rs2("points") = upoints + marks
+rs2.Update
+rs2.Close
+
+
+
+' ------------------------------------ submit the attendance to attendance table  ------------------------------
+
+
+MsgBox "submitted Successfully !!"
+submit.Enabled = False
+cmdmenu.Enabled = True
+
+
+Else
+MsgBox "Feedback Cannot Be Empty"
+rs1.Close
+End If
+End Sub
+
+Private Sub Timer1_Timer()
+' ------------------------------------ Timing control of test ------------------------------
+
+sec = sec - 1
+lbsec.Caption = sec
+lbmin.Caption = min
+If sec = 0 Then
+sec = 60
+min = min - 1
+End If
+
+If min = -1 Then
+MsgBox "sorry Times Up...!!! "
+Timer1.Enabled = False
+
+submit.Enabled = True
+cmdmenu.Enabled = False
+
+cmdtnext.Enabled = False
+cmdcalc.Enabled = False
+
+End If
+End Sub
+
+Private Sub topt1_Click()
+If topt1.Value = True Then
+optpos = 1
+uans = optpos
+End If
+End Sub
+
+Private Sub topt2_Click()
+If topt2.Value = True Then
+optpos = 2
+uans = optpos
+End If
+End Sub
+
+Private Sub topt3_Click()
+If topt3.Value = True Then
+optpos = 3
+uans = optpos
+End If
+End Sub
+
+Private Sub topt4_Click()
+If topt4.Value = True Then
+optpos = 4
+uans = optpos
+End If
+End Sub
+
+
+===================================== stu top ranks =================
+
+Private Sub cmd_menu_Click()
+Unload stu_topranks
+stu_menu.Show
+End Sub
+
+================================== utility ========================
+
+Public con As New ADODB.Connection
+
+'------------------------------------  orole retrive and store user role from db ------------------------------------
+Public orole As String
+
+' ------------------------------------ This is used to store teacher details ------------------------------
+Public fname, femail As String
+
+' ------------------------------------ This is used to store Student details ------------------------------
+Public stu_name, stu_sec, stu_class, stu_reg, mng_user As String
+Public stu_email, points As String
+
+' ------------------------------------ This is used to store User login details ------------------------------
+Public pusername, ppassword, pstatus As String
+
+' ------------------------------------ This is used to store Test details ------------------------------
+Public t_name, t_class, t_sec, t_dur, t_id, t_marks, t_totalq, t_subject As String
+Public t_tstatus, t_astatus As String
+
+Public Sub Main()
+' ------------------------------------ This is used to establish connection  ------------------------------
+con.Open "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Documents and Settings\Administrator\My Documents\OnlineExam.accdb;Persist Security Info=False"
+frm_Login.Show
+End Sub
+
+
+0==================================== the end =============================

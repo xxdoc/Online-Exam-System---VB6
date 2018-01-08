@@ -1,0 +1,49 @@
+rs.MoveNext
+lbtestid = rs("testid")
+lbsem = rs("sem")
+lbsec = rs("sec")
+lbsname = rs("subject")
+lbtname = rs("ttitle")
+If rs.EOF Then
+MsgBox "NO TEST RECORD FOUND"
+rs.Close
+Unload Me
+admin.Show
+End If
+
+Private Sub topt1_Click()
+If topt1.Value = True Then
+optpos = 1
+uans = optpos
+End If
+End Sub
+
+Private Sub topt2_Click()
+If topt2.Value = True Then
+optpos = 2
+uans = optpos
+End If
+End Sub
+
+Private Sub topt3_Click()
+If topt3.Value = True Then
+optpos = 3
+uans = optpos
+End If
+End Sub
+
+Private Sub topt4_Click()
+If topt4.Value = True Then
+optpos = 4
+uans = optpos
+End If
+End Sub
+
+
+Private Function calc()
+' ------------------------------------ function to calculate the marks if answer option clicked  ------------------------------
+
+If optpos = otans And optpos = otans Then
+marks = marks + t_marks
+End If
+End Function
